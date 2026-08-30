@@ -1,4 +1,4 @@
-package com.tvman.TvADB.data
+package com.tvman.TvAdb.data
 
 data class SavedDevice(
     val name: String,
