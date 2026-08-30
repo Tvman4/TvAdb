@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TvADB</string>
+    <string name="connect_title">Wireless Debugging</string>
+    <string name="mods_title">Quest Mods</string>
+    <string name="shell_title">ADB Shell</string>
+    <string name="long_arms">Long Arms</string>
+    <string name="long_arms_desc">Extends virtual arm reach (setprop debug.oculus.headlock 3)</string>
+</resources>
