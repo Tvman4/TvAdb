@@ -41,12 +41,15 @@ fun ConnectScreen(
     onConnected: () -> Unit = {}
 ) {
     var host by remember { mutableStateOf("") }
-    var port by remember { mutableStateOf("5555") }
+    var connectPort by remember { mutableStateOf("5555") }      // Wireless Debugging port
+    var pairPort by remember { mutableStateOf("") }             // Temporary pairing port
     var pairingCode by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Not connected") }
     var isBusy by remember { mutableStateOf(false) }
+    // Re-read state after every action so UI updates
+    var connectionTick by remember { mutableStateOf(0) }
+    val state = remember(connectionTick) { adbManager.getState() }
     val scope = rememberCoroutineScope()
-    val state = adbManager.getState()
 
     Column(
         modifier = Modifier
@@ -60,7 +63,7 @@ fun ConnectScreen(
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = "Enable Wireless Debugging on your Quest. Use Pair once, then Connect. No Shizuku required.",
+            text = "Enable Wireless Debugging on your Quest. Use Pair once (with the temporary pairing port + 6-digit code), then Connect with the normal IP + port. No Shizuku required.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -76,10 +79,19 @@ fun ConnectScreen(
         )
 
         OutlinedTextField(
-            value = port,
-            onValueChange = { port = it },
-            label = { Text("Port") },
+            value = connectPort,
+            onValueChange = { connectPort = it },
+            label = { Text("Connect Port") },
             placeholder = { Text("5555 or Wireless Debugging port") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = pairPort,
+            onValueChange = { pairPort = it },
+            label = { Text("Pairing Port (from Quest dialog)") },
+            placeholder = { Text("Usually a different port than Connect") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -87,7 +99,7 @@ fun ConnectScreen(
         OutlinedTextField(
             value = pairingCode,
             onValueChange = { pairingCode = it },
-            label = { Text("Pairing Code (optional)") },
+            label = { Text("Pairing Code (6 digits)") },
             placeholder = { Text("6-digit code from Quest") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -101,13 +113,18 @@ fun ConnectScreen(
                 onClick = {
                     scope.launch {
                         isBusy = true
-                        val p = port.toIntOrNull() ?: 5555
+                        val p = pairPort.toIntOrNull()
+                            ?: return@launch.also {
+                                status = "Pairing port is required"
+                                isBusy = false
+                            }
                         val result = adbManager.pair(host, p, pairingCode)
                         status = result.getOrElse { it.message ?: "Pair failed" }
+                        connectionTick++
                         isBusy = false
                     }
                 },
-                enabled = !isBusy && host.isNotBlank() && pairingCode.isNotBlank(),
+                enabled = !isBusy && host.isNotBlank() && pairingCode.isNotBlank() && pairPort.isNotBlank(),
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Pair")
@@ -117,10 +134,11 @@ fun ConnectScreen(
                 onClick = {
                     scope.launch {
                         isBusy = true
-                        val p = port.toIntOrNull() ?: 5555
+                        val p = connectPort.toIntOrNull() ?: 5555
                         val result = adbManager.connect(host, p)
                         status = result.getOrElse { it.message ?: "Connect failed" }
                         if (result.isSuccess) onConnected()
+                        connectionTick++
                         isBusy = false
                     }
                 },
@@ -137,6 +155,7 @@ fun ConnectScreen(
             onClick = {
                 adbManager.disconnect()
                 status = "Disconnected"
+                connectionTick++
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -175,9 +194,10 @@ fun ConnectScreen(
         Text(text = "Quick tips", style = MaterialTheme.typography.titleSmall)
         Text(
             text = "1. Enable Wireless Debugging on Quest\n" +
-                    "2. Pair with the code once\n" +
-                    "3. Connect with IP + port\n" +
-                    "4. Go to Mods → Long Arms or Pull/Fly",
+                    "2. Tap “Pair device with pairing code” → note the temporary Pairing Port + 6-digit code\n" +
+                    "3. Pair once with that port + code\n" +
+                    "4. Connect with the normal IP + Connect Port\n" +
+                    "5. Go to Mods → Long Arms or Pull/Fly",
             style = MaterialTheme.typography.bodySmall
         )
     }
