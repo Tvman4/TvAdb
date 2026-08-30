@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.tvman.TvADB"
+    namespace = "com.tvman.TvAdb"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.tvman.TvADB"
+        applicationId = "com.tvman.TvAdb"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
