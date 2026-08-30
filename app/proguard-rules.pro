@@ -1,2 +1,2 @@
-# TvADB ProGuard rules
--keep class com.tvman.TvADB.** { *; }
+# TvAdb ProGuard rules
+-keep class com.tvman.TvAdb.** { *; }
