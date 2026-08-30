@@ -2,11 +2,13 @@ package com.tvman.TvAdb.adb
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import io.github.muntashirakon.adb.AbsAdbConnectionManager
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.cert.X509v3CertificateBuilder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.File
 import java.io.FileInputStream
@@ -16,6 +18,7 @@ import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.PrivateKey
 import java.security.SecureRandom
+import java.security.Security
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -29,16 +32,24 @@ class TvAdbConnectionManager private constructor(context: Context) : AbsAdbConne
     private val certificate: Certificate
 
     init {
+        // Make sure BouncyCastle is available
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(BouncyCastleProvider())
+        }
+
         setApi(Build.VERSION.SDK_INT)
+
         val loaded = loadKeyAndCert()
         if (loaded != null) {
             privateKey = loaded.first
             certificate = loaded.second
+            Log.i(TAG, "Loaded existing ADB key + cert")
         } else {
             val generated = generateKeyAndCert()
             privateKey = generated.first
             certificate = generated.second
             saveKeyAndCert(privateKey, certificate)
+            Log.i(TAG, "Generated new ADB key + cert")
         }
     }
 
@@ -58,7 +69,8 @@ class TvAdbConnectionManager private constructor(context: Context) : AbsAdbConne
                 CertificateFactory.getInstance("X.509").generateCertificate(it)
             }
             key to cert
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not load key/cert", e)
             null
         }
     }
@@ -67,7 +79,9 @@ class TvAdbConnectionManager private constructor(context: Context) : AbsAdbConne
         try {
             keyFile().writeBytes(key.encoded)
             FileOutputStream(certFile()).use { it.write(cert.encoded) }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not save key/cert", e)
+        }
     }
 
     private fun generateKeyAndCert(): Pair<PrivateKey, X509Certificate> {
@@ -96,6 +110,8 @@ class TvAdbConnectionManager private constructor(context: Context) : AbsAdbConne
     }
 
     companion object {
+        private const val TAG = "TvAdbConnectionManager"
+
         @Volatile private var instance: TvAdbConnectionManager? = null
 
         @Throws(Exception::class)
