@@ -1,4 +1,4 @@
-package com.tvman.TvADB
+package com.tvman.TvAdb
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
