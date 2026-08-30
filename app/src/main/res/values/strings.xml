@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TvADB</string>
+    <string name="app_name">TvAdb</string>
     <string name="connect_title">Wireless Debugging</string>
     <string name="mods_title">Quest Mods</string>
     <string name="shell_title">ADB Shell</string>
