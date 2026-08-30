@@ -1,4 +1,4 @@
-package com.tvman.TvADB.ui.theme
+package com.tvman.TvAdb.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +22,7 @@ private val LightColors = lightColorScheme(
 )
 
 @Composable
-fun TvADBTheme(
+fun TvAdbTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
