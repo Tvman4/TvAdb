@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -61,8 +60,7 @@ fun ConnectScreen(
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = "Enable Wireless Debugging on your Quest (Developer Options). " +
-                    "Use Pair once, then Connect. No Shizuku required.",
+            text = "Enable Wireless Debugging on your Quest. Use Pair once, then Connect. No Shizuku required.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -89,7 +87,7 @@ fun ConnectScreen(
         OutlinedTextField(
             value = pairingCode,
             onValueChange = { pairingCode = it },
-            label = { Text("Pairing Code (optional – first time)") },
+            label = { Text("Pairing Code (optional)") },
             placeholder = { Text("6-digit code from Quest") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -150,11 +148,10 @@ fun ConnectScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (state.isConnected) {
+                containerColor = if (state.isConnected)
                     MaterialTheme.colorScheme.primaryContainer
-                } else {
+                else
                     MaterialTheme.colorScheme.surfaceVariant
-                }
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -162,15 +159,9 @@ fun ConnectScreen(
                     text = if (state.isConnected) "● Connected" else "○ Disconnected",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    text = status,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                Text(text = status, style = MaterialTheme.typography.bodySmall)
                 state.host?.let { h ->
-                    Text(
-                        text = "$h:${state.port}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Text(text = "$h:${state.port}", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -181,15 +172,12 @@ fun ConnectScreen(
 
         HorizontalDivider()
 
+        Text(text = "Quick tips", style = MaterialTheme.typography.titleSmall)
         Text(
-            text = "Quick tips",
-            style = MaterialTheme.typography.titleSmall
-        )
-        Text(
-            text = "1. On Quest: Settings → System → Developer → Wireless Debugging ON\n" +
-                    "2. Tap Pair device with pairing code and enter the code + port here\n" +
-                    "3. After pairing, use the IP + the connection port (not the pairing port)\n" +
-                    "4. Once connected go to the Mods tab and hit Long Arms or Pull/Fly",
+            text = "1. Enable Wireless Debugging on Quest\n" +
+                    "2. Pair with the code once\n" +
+                    "3. Connect with IP + port\n" +
+                    "4. Go to Mods → Long Arms or Pull/Fly",
             style = MaterialTheme.typography.bodySmall
         )
     }
