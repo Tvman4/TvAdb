@@ -1,0 +1,168 @@
+package com.tvman.TvADB.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.tvman.TvADB.adb.AdbManager
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConnectScreen(
+    adbManager: AdbManager,
+    onConnected: () -> Unit = {}
+) {
+    var host by remember { mutableStateOf("") }
+    var port by remember { mutableStateOf("5555") }
+    var pairingCode by remember { mutableStateOf("") }
+    var status by remember { mutableStateOf("Not connected") }
+    var isBusy by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val state = adbManager.getState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Wireless Debugging",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Enable Wireless Debugging on your Quest (Developer Options). " +
+                    "Use Pair once, then Connect. No Shizuku required.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        OutlinedTextField(
+            value = host,
+            onValueChange = { host = it },
+            label = { Text("Quest IP Address") },
+            placeholder = { Text("192.168.x.x") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            leadingIcon = { Icon(Icons.Default.Wifi, null) }
+        )
+
+        OutlinedTextField(
+            value = port,
+            onValueChange = { port = it },
+            label = { Text("Port") },
+            placeholder = { Text("5555 or Wireless Debugging port") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = pairingCode,
+            onValueChange = { pairingCode = it },
+            label = { Text("Pairing Code (optional – first time)") },
+            placeholder = { Text("6-digit code from Quest") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        isBusy = true
+                        val p = port.toIntOrNull() ?: 5555
+                        val result = adbManager.pair(host, p, pairingCode)
+                        status = result.getOrElse { it.message ?: "Pair failed" }
+                        isBusy = false
+                    }
+                },
+                enabled = !isBusy && host.isNotBlank() && pairingCode.isNotBlank(),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Pair")
+            }
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        isBusy = true
+                        val p = port.toIntOrNull() ?: 5555
+                        val result = adbManager.connect(host, p)
+                        status = result.getOrElse { it.message ?: "Connect failed" }
+                        if (result.isSuccess) onConnected()
+                        isBusy = false
+                    }
+                },
+                enabled = !isBusy && host.isNotBlank(),
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Link, null)
+                Spacer(Modifier.width(4.dp))
+                Text("Connect")
+            }
+        }
+
+        OutlinedButton(
+            onClick = {
+                adbManager.disconnect()
+                status = "Disconnected"
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.LinkOff, null)
+            Spacer(Modifier.width(4.dp))
+            Text("Disconnect")
+        }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = if (state.isConnected)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(Modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = if (state.isConnected) "● Connected" else "○ Disconnected",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(status, style = MaterialTheme.typography.bodySmall)
+                state.host?.let {
+                    Text("$it:${state.port}", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        if (isBusy) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+
+        Divider()
+        Text(
+            text = "Quick tips",
+            style = MaterialTheme.typography.titleSmall
+        )
+        Text(
+            text = "1. On Quest: Settings → System → Developer → Wireless Debugging ON\n" +
+                    "2. Tap “Pair device with pairing code” and enter the code + port here\n" +
+                    "3. After pairing, use the IP + the connection port (not the pairing port)\n" +
+                    "4. Once connected go to the Mods tab and hit Long Arms",
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
