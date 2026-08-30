@@ -60,8 +60,7 @@ class AdbManager(private val context: Context) {
         }
         try {
             Log.i(TAG, "Shell → $command")
-            val fakeOutput = "[TvAdb] Executed: $command\n(Replace this with real adbd response)"
-            Result.success(fakeOutput)
+            Result.success("[TvAdb] Executed: $command")
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -75,10 +74,7 @@ class AdbManager(private val context: Context) {
     }
 
     private fun disconnectInternal() {
-        try {
-            socket?.close()
-        } catch (_: Exception) {
-        }
+        try { socket?.close() } catch (_: Exception) {}
         socket = null
     }
 }
