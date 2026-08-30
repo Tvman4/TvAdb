@@ -37,6 +37,15 @@ class TvAdbConnectionManager private constructor(context: Context) : AbsAdbConne
             Security.addProvider(BouncyCastleProvider())
         }
 
+        // Required for Wireless Debugging TLS pairing
+        try {
+            if (Security.getProvider("Conscrypt") == null) {
+                Security.insertProviderAt(org.conscrypt.Conscrypt.newProvider(), 1)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to install Conscrypt", e)
+        }
+
         setApi(Build.VERSION.SDK_INT)
 
         val loaded = loadKeyAndCert()
