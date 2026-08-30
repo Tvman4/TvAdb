@@ -51,8 +51,12 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
 
-    // ADB library - pure protocol client (no Shizuku)
+    // Real ADB protocol client (Wireless Debugging)
     implementation("com.github.MuntashirAkon:libadb-android:3.1.1")
+
+    // BouncyCastle – needed for on-device RSA key + certificate generation
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.78.1")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
