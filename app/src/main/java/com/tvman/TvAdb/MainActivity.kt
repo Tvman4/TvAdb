@@ -12,11 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.tvman.TvADB.adb.AdbManager
-import com.tvman.TvADB.ui.screens.ConnectScreen
-import com.tvman.TvADB.ui.screens.ModsScreen
-import com.tvman.TvADB.ui.screens.ShellScreen
-import com.tvman.TvADB.ui.theme.TvADBTheme
+import com.tvman.TvAdb.adb.AdbManager
+import com.tvman.TvAdb.ui.screens.ConnectScreen
+import com.tvman.TvAdb.ui.screens.ModsScreen
+import com.tvman.TvAdb.ui.screens.ShellScreen
+import com.tvman.TvAdb.ui.theme.TvAdbTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         val adbManager = AdbManager(applicationContext)
 
         setContent {
-            TvADBTheme {
+            TvAdbTheme {
                 var selectedTab by remember { mutableIntStateOf(0) }
 
                 val tabs = listOf(
