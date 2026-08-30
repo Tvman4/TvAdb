@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -36,7 +35,6 @@ fun ModsScreen(adbManager: AdbManager) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Header + Long Arms highlight
         Surface(
             tonalElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
@@ -55,9 +53,8 @@ fun ModsScreen(adbManager: AdbManager) {
 
                 Spacer(Modifier.height(12.dp))
 
-                // Big flagship buttons
                 val longArms = QuestMods.findById("long_arms")!!
-                val pullFly = QuestMods.findById("pull_fly")!!
+                val pullMod = QuestMods.findById("pull_mod")!!
 
                 Button(
                     onClick = {
@@ -92,7 +89,7 @@ fun ModsScreen(adbManager: AdbManager) {
                     onClick = {
                         scope.launch {
                             isBusy = true
-                            val r = adbManager.applyMod(pullFly.command)
+                            val r = adbManager.applyMod(pullMod.command)
                             lastResult = r.getOrElse { "Error: ${it.message}" }
                             isBusy = false
                         }
@@ -107,9 +104,9 @@ fun ModsScreen(adbManager: AdbManager) {
                     Icon(Icons.Default.PlayArrow, null)
                     Spacer(Modifier.width(8.dp))
                     Column {
-                        Text("PULL / FLY", fontWeight = FontWeight.Bold)
+                        Text("PULL MOD", fontWeight = FontWeight.Bold)
                         Text(
-                            "Ctrlpredmax 5 + Right.ctrlr.vel 5",
+                            "headlock 1 + translation.z ramp",
                             style = MaterialTheme.typography.labelSmall
                         )
                     }
@@ -117,7 +114,6 @@ fun ModsScreen(adbManager: AdbManager) {
             }
         }
 
-        // Search + category chips
         OutlinedTextField(
             value = search,
             onValueChange = { search = it },
