@@ -1,4 +1,4 @@
-package com.tvman.TvADB.mods
+package com.tvman.TvAdb.mods
 
 /**
  * TvADB - Full curated list of Quest / Oculus debug props & useful shell commands.
