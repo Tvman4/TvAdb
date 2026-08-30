@@ -26,8 +26,20 @@ class AdbManager(private val context: Context) {
     @Volatile
     private var state = ConnectionState()
 
-    private val manager: AbsAdbConnectionManager by lazy {
-        TvAdbConnectionManager.getInstance(context)
+    private var manager: AbsAdbConnectionManager? = null
+
+    private fun getManager(): AbsAdbConnectionManager {
+        val existing = manager
+        if (existing != null) return existing
+
+        return try {
+            val created = TvAdbConnectionManager.getInstance(context)
+            manager = created
+            created
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create ADB manager", e)
+            throw e
+        }
     }
 
     fun getState(): ConnectionState = state
@@ -42,17 +54,18 @@ class AdbManager(private val context: Context) {
                     return@withContext Result.failure(Exception("Pairing code must be 6 digits"))
                 }
 
-                manager.hostAddress = host.trim()
-                val ok = manager.pair(host.trim(), port, pairingCode.trim())
+                val mgr = getManager()
+                mgr.hostAddress = host.trim()
+                val ok = mgr.pair(host.trim(), port, pairingCode.trim())
 
                 if (ok) {
-                    Result.success("Paired OK. Now Connect with the normal Wireless Debugging IP + port (not the pairing port).")
+                    Result.success("Paired OK. Now Connect with the normal Wireless Debugging IP + port.")
                 } else {
-                    Result.failure(Exception("Pairing returned false. Check IP, pairing port, and 6-digit code."))
+                    Result.failure(Exception("Pairing returned false. Check IP, pairing port, and code."))
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Pair failed", e)
-                Result.failure(Exception("Pair error: ${e.javaClass.simpleName}: ${e.message}"))
+            } catch (e: Throwable) {
+                Log.e(TAG, "Pair crashed", e)
+                Result.failure(Exception("Pair crash: ${e.javaClass.simpleName}: ${e.message}"))
             }
         }
 
@@ -63,8 +76,9 @@ class AdbManager(private val context: Context) {
                     return@withContext Result.failure(Exception("IP is required"))
                 }
 
-                manager.hostAddress = host.trim()
-                val ok = manager.connect(host.trim(), port)
+                val mgr = getManager()
+                mgr.hostAddress = host.trim()
+                val ok = mgr.connect(host.trim(), port)
 
                 if (ok) {
                     state = ConnectionState(isConnected = true, host = host.trim(), port = port)
@@ -73,10 +87,10 @@ class AdbManager(private val context: Context) {
                     state = ConnectionState(isConnected = false, lastError = "connect returned false")
                     Result.failure(Exception("Connect failed. Pair first, then use the correct port."))
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 state = ConnectionState(isConnected = false, lastError = e.message)
-                Log.e(TAG, "Connect failed", e)
-                Result.failure(Exception("Connect error: ${e.javaClass.simpleName}: ${e.message}"))
+                Log.e(TAG, "Connect crashed", e)
+                Result.failure(Exception("Connect crash: ${e.javaClass.simpleName}: ${e.message}"))
             }
         }
 
@@ -85,7 +99,8 @@ class AdbManager(private val context: Context) {
             return@withContext Result.failure(IllegalStateException("Not connected. Pair then Connect first."))
         }
         try {
-            val stream: AdbStream = manager.openStream("shell:$command")
+            val mgr = getManager()
+            val stream: AdbStream = mgr.openStream("shell:$command")
             val reader = BufferedReader(
                 InputStreamReader(stream.openInputStream(), StandardCharsets.UTF_8)
             )
@@ -99,9 +114,9 @@ class AdbManager(private val context: Context) {
             val result = output.toString().ifBlank { "(command sent – no output)" }
             Log.i(TAG, "Shell → $command\n$result")
             Result.success(result)
-        } catch (e: Exception) {
-            Log.e(TAG, "Shell failed: $command", e)
-            Result.failure(Exception("Shell error: ${e.javaClass.simpleName}: ${e.message}"))
+        } catch (e: Throwable) {
+            Log.e(TAG, "Shell crashed: $command", e)
+            Result.failure(Exception("Shell crash: ${e.javaClass.simpleName}: ${e.message}"))
         }
     }
 
@@ -109,9 +124,10 @@ class AdbManager(private val context: Context) {
 
     fun disconnect() {
         try {
-            manager.close()
+            manager?.close()
         } catch (_: Exception) {
         }
+        manager = null
         state = ConnectionState(isConnected = false)
     }
 }
