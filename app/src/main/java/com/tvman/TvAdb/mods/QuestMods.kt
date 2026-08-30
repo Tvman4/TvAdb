@@ -3,15 +3,15 @@ package com.tvman.TvAdb.mods
 /**
  * TvADB - Full curated list of Quest / Oculus debug props & useful shell commands.
  * All commands run via ADB shell after wireless connection.
- * Flagship: Long Arms + Pull / Fly.
+ * Flagship: Long Arms + Pull Mod.
  */
 object QuestMods {
 
     data class Mod(
         val id: String,
         val title: String,
-        val description: String,          // human comment / what it does
-        val command: String,              // exact shell command(s)
+        val description: String,
+        val command: String,
         val category: String,
         val isToggle: Boolean = false,
         val resetCommand: String? = null
@@ -20,7 +20,7 @@ object QuestMods {
     val allMods: List<Mod> = listOf(
 
         // =========================================================
-        // MOVEMENT  (Long Arms + Pull/Fly + 10 extra)
+        // MOVEMENT  (Long Arms + Pull Mod + extras)
         // =========================================================
         Mod(
             id = "long_arms",
@@ -32,8 +32,17 @@ object QuestMods {
             resetCommand = "setprop debug.oculus.headlock 0"
         ),
         Mod(
+            id = "pull_mod",
+            title = "Pull Mod (Headlock Z Translation)",
+            description = "Sets headlock 1, ramps debug.oculus.headlock.translation.z from -0.5 to -4.5, then resets translation and headlock",
+            command = "setprop debug.oculus.headlock 1; i=1; while [ \$i -lt 10 ]; do setprop debug.oculus.headlock.translation.z -\$(awk -v i=\$i 'BEGIN {print i * 0.5}'); i=\$((i + 1)); done; setprop debug.oculus.headlock.translation.z 0; setprop debug.oculus.headlock 0",
+            category = "Movement",
+            isToggle = true,
+            resetCommand = "setprop debug.oculus.headlock.translation.z 0; setprop debug.oculus.headlock 0"
+        ),
+        Mod(
             id = "pull_fly",
-            title = "Pull / Fly",
+            title = "Pull / Fly (legacy)",
             description = "Enables the popular Pull / Fly style movement. BOTH props must be set: debug.oculus.Ctrlpredmax 5 + debug.oculus.Right.ctrlr.vel 5",
             command = "setprop debug.oculus.Ctrlpredmax 5; setprop debug.oculus.Right.ctrlr.vel 5",
             category = "Movement",
@@ -113,15 +122,15 @@ object QuestMods {
         Mod(
             id = "full_movement_reset",
             title = "Full Movement Reset",
-            description = "Resets headlock + prediction + both controller velocities in one go",
-            command = "setprop debug.oculus.headlock 0; setprop debug.oculus.Ctrlpredmax 0; setprop debug.oculus.Left.ctrlr.vel 0; setprop debug.oculus.Right.ctrlr.vel 0",
+            description = "Resets headlock + prediction + both controller velocities + translation.z in one go",
+            command = "setprop debug.oculus.headlock 0; setprop debug.oculus.headlock.translation.z 0; setprop debug.oculus.Ctrlpredmax 0; setprop debug.oculus.Left.ctrlr.vel 0; setprop debug.oculus.Right.ctrlr.vel 0",
             category = "Movement"
         ),
         Mod(
             id = "long_arms_plus_pull",
             title = "Long Arms + Pull Combo",
-            description = "Applies classic Long Arms together with the Pull/Fly pair for maximum reach + movement",
-            command = "setprop debug.oculus.headlock 3; setprop debug.oculus.Ctrlpredmax 5; setprop debug.oculus.Right.ctrlr.vel 5",
+            description = "Applies classic Long Arms together with the Pull Mod sequence",
+            command = "setprop debug.oculus.headlock 3; setprop debug.oculus.headlock 1; i=1; while [ \$i -lt 10 ]; do setprop debug.oculus.headlock.translation.z -\$(awk -v i=\$i 'BEGIN {print i * 0.5}'); i=\$((i + 1)); done; setprop debug.oculus.headlock.translation.z 0; setprop debug.oculus.headlock 0",
             category = "Movement"
         ),
 
