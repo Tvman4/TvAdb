@@ -1,4 +1,4 @@
-package com.tvman.TvADB.ui.screens
+package com.tvman.TvAdb.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tvman.TvADB.adb.AdbManager
-import com.tvman.TvADB.mods.QuestMods
+import com.tvman.TvAdb.adb.AdbManager
+import com.tvman.TvAdb.mods.QuestMods
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
