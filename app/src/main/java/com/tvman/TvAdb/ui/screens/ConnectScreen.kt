@@ -1,21 +1,41 @@
-package com.tvman.TvADB.ui.screens
+package com.tvman.TvAdb.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.tvman.TvADB.adb.AdbManager
+import com.tvman.TvAdb.adb.AdbManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConnectScreen(
     adbManager: AdbManager,
@@ -54,7 +74,7 @@ fun ConnectScreen(
             placeholder = { Text("192.168.x.x") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            leadingIcon = { Icon(Icons.Default.Wifi, null) }
+            leadingIcon = { Icon(Icons.Default.Wifi, contentDescription = null) }
         )
 
         OutlinedTextField(
@@ -109,8 +129,8 @@ fun ConnectScreen(
                 enabled = !isBusy && host.isNotBlank(),
                 modifier = Modifier.weight(1f)
             ) {
-                Icon(Icons.Default.Link, null)
-                Spacer(Modifier.width(4.dp))
+                Icon(Icons.Default.Link, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
                 Text("Connect")
             }
         }
@@ -122,28 +142,35 @@ fun ConnectScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.LinkOff, null)
-            Spacer(Modifier.width(4.dp))
+            Icon(Icons.Default.LinkOff, contentDescription = null)
+            Spacer(modifier = Modifier.width(4.dp))
             Text("Disconnect")
         }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (state.isConnected)
+                containerColor = if (state.isConnected) {
                     MaterialTheme.colorScheme.primaryContainer
-                else
+                } else {
                     MaterialTheme.colorScheme.surfaceVariant
+                }
             )
         ) {
-            Column(Modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = if (state.isConnected) "● Connected" else "○ Disconnected",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(status, style = MaterialTheme.typography.bodySmall)
-                state.host?.let {
-                    Text("$it:${state.port}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = status,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                state.host?.let { h ->
+                    Text(
+                        text = "$h:${state.port}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
@@ -152,16 +179,17 @@ fun ConnectScreen(
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
 
-        Divider()
+        HorizontalDivider()
+
         Text(
             text = "Quick tips",
             style = MaterialTheme.typography.titleSmall
         )
         Text(
             text = "1. On Quest: Settings → System → Developer → Wireless Debugging ON\n" +
-                    "2. Tap “Pair device with pairing code” and enter the code + port here\n" +
+                    "2. Tap Pair device with pairing code and enter the code + port here\n" +
                     "3. After pairing, use the IP + the connection port (not the pairing port)\n" +
-                    "4. Once connected go to the Mods tab and hit Long Arms",
+                    "4. Once connected go to the Mods tab and hit Long Arms or Pull/Fly",
             style = MaterialTheme.typography.bodySmall
         )
     }
