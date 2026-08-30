@@ -1,4 +1,4 @@
-package com.tvman.TvADB.ui.screens
+package com.tvman.TvAdb.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,13 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.tvman.TvADB.adb.AdbManager
+import com.tvman.TvAdb.adb.AdbManager
 import kotlinx.coroutines.launch
 
 @Composable
 fun ShellScreen(adbManager: AdbManager) {
     var command by remember { mutableStateOf("") }
-    var output by remember { mutableStateOf("TvADB Shell\nType any ADB shell command and press Send.\nExample: getprop debug.oculus.headlock\n") }
+    var output by remember { mutableStateOf("TvAdb Shell\nType any ADB shell command and press Send.\nExample: getprop debug.oculus.headlock\n") }
     var isBusy by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val scroll = rememberScrollState()
